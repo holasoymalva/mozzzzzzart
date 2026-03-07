@@ -1,0 +1,140 @@
+import * as Tone from 'tone';
+
+export class AudioEngine {
+    private loops: boolean[] = [false, false, false, false];
+
+    // Instruments
+    private drumSynth: Tone.MembraneSynth;
+    private bassSynth: Tone.FMSynth;
+    private leadSynth: Tone.PolySynth;
+    private padSynth: Tone.PolySynth;
+
+    // Modulators/Filters
+    private globalFilter: Tone.Filter;
+    private reverb: Tone.Reverb;
+
+
+
+    constructor() {
+        this.drumSynth = new Tone.MembraneSynth().toDestination();
+
+        this.bassSynth = new Tone.FMSynth({
+            harmonicity: 0.5,
+            modulationIndex: 1.2,
+            envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.5 }
+        }).toDestination();
+
+        this.globalFilter = new Tone.Filter(2000, 'lowpass');
+        this.reverb = new Tone.Reverb(2).connect(this.globalFilter);
+        this.globalFilter.toDestination();
+
+        this.leadSynth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: 'square' },
+            envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.1 }
+        }).connect(this.reverb);
+
+        this.padSynth = new Tone.PolySynth(Tone.AMSynth, {
+            envelope: { attack: 1, decay: 0.1, sustain: 1, release: 2 }
+        }).connect(this.reverb);
+
+        this.setupSequences();
+    }
+
+    async start() {
+        await Tone.start();
+        Tone.Transport.bpm.value = 120;
+        Tone.Transport.start();
+    }
+
+    private setupSequences() {
+        // Drums (Top Left)
+        new Tone.Loop((time) => {
+            if (this.loops[0]) {
+                this.drumSynth.triggerAttackRelease("C1", "8n", time);
+                if (Math.random() > 0.5) this.drumSynth.triggerAttackRelease("C2", "16n", time + Tone.Time("4n").toSeconds() / 2);
+            }
+        }, "4n").start(0);
+
+        // Bass (Top Right)
+        const bassNotes = ["C2", "Eb2", "F2", "G2"];
+        let bassIndex = 0;
+        new Tone.Loop((time) => {
+            if (this.loops[1]) {
+                this.bassSynth.triggerAttackRelease(bassNotes[bassIndex % bassNotes.length], "8n", time);
+                bassIndex++;
+            }
+        }, "4n").start(0);
+
+        // Lead (Bottom Left)
+        const leadNotes = ["C4", "Eb4", "G4", "Bb4", "C5"];
+        let leadIndex = 0;
+        new Tone.Loop((time) => {
+            if (this.loops[2]) {
+                this.leadSynth.triggerAttackRelease(leadNotes[leadIndex % leadNotes.length], "16n", time);
+                leadIndex++;
+            }
+        }, "8n").start(0);
+
+        // Pad (Bottom Right)
+        const padChords = [
+            ["C4", "Eb4", "G4"],
+            ["F3", "Ab3", "C4"],
+            ["G3", "B3", "D4"],
+            ["C4", "Eb4", "G4"]
+        ];
+        let padIndex = 0;
+        new Tone.Loop((time) => {
+            if (this.loops[3]) {
+                this.padSynth.triggerAttackRelease(padChords[padIndex % padChords.length], "2n", time);
+                padIndex++;
+            }
+        }, "1m").start(0);
+    }
+
+    toggleLoop(index: number) {
+        if (index >= 0 && index < 4) {
+            this.loops[index] = !this.loops[index];
+        }
+    }
+
+    setLoop(index: number, state: boolean) {
+        if (index >= 0 && index < 4) {
+            this.loops[index] = state;
+        }
+    }
+
+    getLoopState(index: number) {
+        return this.loops[index];
+    }
+
+    // Modulate based on 0-1 values from hand x, y
+    modulate(x: number, y: number, selectedIndex: number) {
+        // Map X to filter frequency, Y to volume or synth parameter
+        const freq = Math.max(100, Math.min(20000, Math.pow(x, 2) * 20000));
+        this.globalFilter.frequency.rampTo(freq, 0.1);
+
+        switch (selectedIndex) {
+            case 0:
+                // Modulate Drums: volume based on y
+                this.drumSynth.volume.rampTo((1 - y) * 20 - 20, 0.1);
+                break;
+            case 1:
+                // Modulate Bass: Harmonicity
+                this.bassSynth.harmonicity.rampTo(y * 5, 0.1);
+                break;
+            case 2:
+                // Modulate Lead: detune
+                this.leadSynth.set({ detune: (y - 0.5) * 1200 });
+                break;
+            case 3:
+                // Modulate Pad: wet reverb?
+                this.padSynth.volume.rampTo((1 - y) * 20 - 10, 0.1);
+                break;
+            default:
+                // Global modulation if no specific instrument is selected
+                break;
+        }
+    }
+}
+
+export const audioEngine = new AudioEngine();

@@ -107,31 +107,32 @@ export class AudioEngine {
         return this.loops[index];
     }
 
-    // Modulate based on 0-1 values from hand x, y
-    modulate(x: number, y: number, selectedIndex: number) {
-        // Map X to filter frequency, Y to volume or synth parameter
-        const freq = Math.max(100, Math.min(20000, Math.pow(x, 2) * 20000));
-        this.globalFilter.frequency.rampTo(freq, 0.1);
+    // Modulate based on 0-1 relative values from hand relX, relY
+    modulate(relX: number, relY: number, selectedIndex: number) {
+        // Map relX to filter frequency, relY to volume or synth parameter
+        const freq = Math.max(100, Math.min(10000, Math.pow(relX, 2) * 10000));
 
         switch (selectedIndex) {
             case 0:
-                // Modulate Drums: volume based on y
-                this.drumSynth.volume.rampTo((1 - y) * 20 - 20, 0.1);
+                // Modulate Drums: volume based on relY
+                this.drumSynth.volume.rampTo((1 - relY) * 20 - 20, 0.1);
                 break;
             case 1:
-                // Modulate Bass: Harmonicity
-                this.bassSynth.harmonicity.rampTo(y * 5, 0.1);
+                // Modulate Bass: Harmonicity & Modulation Index
+                this.bassSynth.harmonicity.rampTo(relY * 5, 0.1);
+                this.bassSynth.modulationIndex.rampTo(relX * 10, 0.1);
                 break;
             case 2:
-                // Modulate Lead: detune
-                this.leadSynth.set({ detune: (y - 0.5) * 1200 });
+                // Modulate Lead: detune and general filter
+                this.leadSynth.set({ detune: (relY - 0.5) * 1200 });
+                this.globalFilter.frequency.rampTo(freq, 0.1);
                 break;
             case 3:
-                // Modulate Pad: wet reverb?
-                this.padSynth.volume.rampTo((1 - y) * 20 - 10, 0.1);
+                // Modulate Pad: volume and filter
+                this.padSynth.volume.rampTo((1 - relY) * 20 - 10, 0.1);
+                this.globalFilter.frequency.rampTo(freq, 0.1);
                 break;
             default:
-                // Global modulation if no specific instrument is selected
                 break;
         }
     }

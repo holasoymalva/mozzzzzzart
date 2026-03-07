@@ -7,6 +7,7 @@ export type HandPinchState = {
     y: number;
     handType: 'Left' | 'Right';
     isOpen: boolean; // For 🖐️
+    isClosed: boolean; // For ✊
 };
 
 export class HandTrackerService {
@@ -78,6 +79,7 @@ export class HandTrackerService {
             const middleTip = landmarks[12];
             const openDistance = Math.hypot(wrist.x - middleTip.x, wrist.y - middleTip.y);
             const isOpen = openDistance > 0.4; // rough heuristic
+            const isClosed = openDistance < 0.2; // rough heuristic
 
             states.push({
                 // Mirrors coordinates because webcam is flipped visually
@@ -85,6 +87,7 @@ export class HandTrackerService {
                 y: indexTip.y,
                 isPinching,
                 isOpen,
+                isClosed,
                 handType: handedness as 'Left' | 'Right'
             });
         }

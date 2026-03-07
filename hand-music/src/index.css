@@ -64,24 +64,38 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px dashed rgba(0, 0, 0, 0.08);
+  border: 2px dashed rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  margin: 12px;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
 }
 
-.quadrant.selected {
+.quadrant-0.selected {
+  border: 4px solid #ff5678;
+  background: radial-gradient(circle at center, rgba(255, 86, 120, 0.15) 0%, transparent 70%);
+}
+
+.quadrant-1.selected {
+  border: 4px solid #ffae42;
+  background: radial-gradient(circle at center, rgba(255, 174, 66, 0.15) 0%, transparent 70%);
+}
+
+.quadrant-2.selected {
+  border: 4px solid #5e6ad2;
   background: radial-gradient(circle at center, rgba(94, 106, 210, 0.15) 0%, transparent 70%);
-  border: 1px solid rgba(94, 106, 210, 0.2);
 }
 
-.quadrant.selected::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: -1;
-  opacity: 0.5;
+.quadrant-3.selected {
+  border: 4px solid #34c759;
+  background: radial-gradient(circle at center, rgba(52, 199, 89, 0.15) 0%, transparent 70%);
+}
+
+.quadrant.modulating {
+  transform: scale(0.98);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.15) inset;
 }
 
 .emoji-icon {
@@ -94,7 +108,22 @@ body {
 .quadrant.selected .emoji-icon {
   transform: scale(1.3) translateY(-10px);
   opacity: 1;
+}
+
+.quadrant-0.selected .emoji-icon {
+  filter: drop-shadow(0 15px 30px rgba(255, 86, 120, 0.4));
+}
+
+.quadrant-1.selected .emoji-icon {
+  filter: drop-shadow(0 15px 30px rgba(255, 174, 66, 0.4));
+}
+
+.quadrant-2.selected .emoji-icon {
   filter: drop-shadow(0 15px 30px rgba(94, 106, 210, 0.4));
+}
+
+.quadrant-3.selected .emoji-icon {
+  filter: drop-shadow(0 15px 30px rgba(52, 199, 89, 0.4));
 }
 
 .play-overlay {
@@ -139,7 +168,7 @@ body {
   position: fixed;
   width: 50px;
   height: 50px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 50%;
@@ -149,17 +178,17 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.4rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  font-size: 1.6rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   transition: border-color 0.2s ease, transform 0.1s linear, top 0.1s linear, left 0.1s linear;
 }
 
 .hand-pointer.left {
-  border: 3px solid #5e6ad2;
+  border: 3px solid #1e1e24;
 }
 
 .hand-pointer.right {
-  border: 3px solid #ff5678;
+  border: 3px solid #ffae42;
 }
 
 .status-bar {

@@ -28,6 +28,7 @@ export default function App() {
   const activeQuadsRef = useRef<boolean[]>([false, false, false, false]);
   const leftPointerRef = useRef<HTMLDivElement>(null);
   const rightPointerRef = useRef<HTMLDivElement>(null);
+  const quadrantRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const renderLoop = useCallback(() => {
     if (!handTracker.isRunning) {
@@ -56,10 +57,26 @@ export default function App() {
     }
 
     // Handle Right Hand modulation
+    let modulatingIdx = -1;
     if (rightHand && rightHand.isOpen) {
       const qIdx = getQuadrantIndex(rightHand.x, rightHand.y);
-      audioEngine.modulate(rightHand.x, rightHand.y, qIdx);
+      modulatingIdx = qIdx;
+      // Map global coordinate to relative quadrant coordinate
+      const relX = (rightHand.x % 0.5) * 2;
+      const relY = (rightHand.y % 0.5) * 2;
+      audioEngine.modulate(relX, relY, qIdx);
     }
+
+    // Fast DOM update for modulating class border color
+    quadrantRefs.current.forEach((el, idx) => {
+      if (el) {
+        if (idx === modulatingIdx) {
+          el.classList.add('modulating');
+        } else {
+          el.classList.remove('modulating');
+        }
+      }
+    });
 
     // Update DOM directly for pointers to avoid 60FPS re-renders
     if (leftPointerRef.current) {
@@ -67,7 +84,7 @@ export default function App() {
         leftPointerRef.current.style.display = 'flex';
         leftPointerRef.current.style.left = `${leftHand.x * 100}vw`;
         leftPointerRef.current.style.top = `${leftHand.y * 100}vh`;
-        leftPointerRef.current.innerText = leftHand.isPinching ? '👌' : '👈';
+        leftPointerRef.current.innerText = leftHand.isPinching ? '👌' : (leftHand.isClosed ? '✊' : '👈');
       } else {
         leftPointerRef.current.style.display = 'none';
       }
@@ -122,7 +139,8 @@ export default function App() {
         {QUADRANTS.map((quad) => (
           <div
             key={quad.id}
-            className={`quadrant ${loops[quad.id] ? 'selected' : ''}`}
+            ref={(el) => { quadrantRefs.current[quad.id] = el; }}
+            className={`quadrant quadrant-${quad.id} ${loops[quad.id] ? 'selected' : ''}`}
           >
             <div className="emoji-icon">{quad.emoji}</div>
           </div>

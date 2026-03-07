@@ -105,7 +105,7 @@ export default function App() {
       {!isPlaying && (
         <div className="play-overlay">
           <button className="play-btn" onClick={handlePlay}>
-            Start MVP ▶️
+            Start Playing 🧸
           </button>
         </div>
       )}

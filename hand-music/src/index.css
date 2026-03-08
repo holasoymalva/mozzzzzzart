@@ -98,6 +98,39 @@ body {
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.15) inset;
 }
 
+/* Footer link */
+.author-footer {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.author-footer a {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #1e1e24;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.author-footer a:hover {
+  background: #1e1e24;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
 .emoji-icon {
   font-size: 5rem;
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));

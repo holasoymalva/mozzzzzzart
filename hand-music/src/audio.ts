@@ -5,7 +5,7 @@ export class AudioEngine {
 
     // Instruments
     private drumSynth: Tone.MembraneSynth;
-    private bassSynth: Tone.FMSynth;
+    private fluteSynth: Tone.FMSynth;
     private leadSynth: Tone.PolySynth;
     private padSynth: Tone.PolySynth;
 
@@ -18,11 +18,14 @@ export class AudioEngine {
     constructor() {
         this.drumSynth = new Tone.MembraneSynth().toDestination();
 
-        this.bassSynth = new Tone.FMSynth({
-            harmonicity: 0.5,
-            modulationIndex: 1.2,
-            envelope: { attack: 0.01, decay: 0.2, sustain: 0.2, release: 0.5 }
+        this.fluteSynth = new Tone.FMSynth({
+            harmonicity: 2,
+            modulationIndex: 1.5,
+            oscillator: { type: 'sine' },
+            modulation: { type: 'triangle' },
+            envelope: { attack: 0.1, decay: 0.2, sustain: 0.8, release: 0.4 }
         }).toDestination();
+
 
         this.globalFilter = new Tone.Filter(2000, 'lowpass');
         this.reverb = new Tone.Reverb(2).connect(this.globalFilter);
@@ -55,13 +58,13 @@ export class AudioEngine {
             }
         }, "4n").start(0);
 
-        // Bass (Top Right)
-        const bassNotes = ["C2", "Eb2", "F2", "G2"];
-        let bassIndex = 0;
+        // Flute (Top Right)
+        const fluteNotes = ["C5", "Eb5", "F5", "G5"];
+        let fluteIndex = 0;
         new Tone.Loop((time) => {
             if (this.loops[1]) {
-                this.bassSynth.triggerAttackRelease(bassNotes[bassIndex % bassNotes.length], "8n", time);
-                bassIndex++;
+                this.fluteSynth.triggerAttackRelease(fluteNotes[fluteIndex % fluteNotes.length], "8n", time);
+                fluteIndex++;
             }
         }, "4n").start(0);
 
@@ -118,9 +121,9 @@ export class AudioEngine {
                 this.drumSynth.volume.rampTo((1 - relY) * 20 - 20, 0.1);
                 break;
             case 1:
-                // Modulate Bass: Harmonicity & Modulation Index
-                this.bassSynth.harmonicity.rampTo(relY * 5, 0.1);
-                this.bassSynth.modulationIndex.rampTo(relX * 10, 0.1);
+                // Modulate Flute: Harmonicity & Modulation Index for timber/breathiness changes
+                this.fluteSynth.harmonicity.rampTo(1 + relY * 4, 0.1);
+                this.fluteSynth.modulationIndex.rampTo(relX * 3, 0.1);
                 break;
             case 2:
                 // Modulate Lead: detune and general filter

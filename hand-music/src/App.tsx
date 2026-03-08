@@ -5,7 +5,7 @@ import { audioEngine } from './audio';
 
 const QUADRANTS = [
   { id: 0, title: 'Beat', emoji: '🥁' },
-  { id: 1, title: 'Bass', emoji: '🎸' },
+  { id: 1, title: 'Flute', emoji: '🪈' },
   { id: 2, title: 'Lead', emoji: '🎹' },
   { id: 3, title: 'Pad', emoji: '🎻' },
 ];
@@ -146,6 +146,13 @@ export default function App() {
           </div>
         ))}
       </div>
+
+      {/* Footer Link to GitHub project */}
+      <footer className="author-footer">
+        <a href="https://github.com/holasoymalva/mozzzzzzart" target="_blank" rel="noopener noreferrer">
+          🎵 Ver en GitHub
+        </a>
+      </footer>
 
       <div ref={leftPointerRef} className="hand-pointer left" style={{ display: 'none' }}></div>
       <div ref={rightPointerRef} className="hand-pointer right" style={{ display: 'none' }}></div>
